@@ -1,0 +1,180 @@
+{
+  "info": {
+    "name": "DocuParse",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "OCR - factura.png",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "tests/samples/factura.png"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/ocr",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "ocr"
+          ]
+        }
+      }
+    },
+    {
+      "name": "OCR - contrato.pdf",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "tests/samples/contrato.pdf"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/ocr",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "ocr"
+          ]
+        }
+      }
+    },
+    {
+      "name": "OCR - informe.pdf",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "tests/samples/informe.pdf"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/ocr",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "ocr"
+          ]
+        }
+      }
+    },
+    {
+      "name": "OCR - formulas_graficos.png",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "tests/samples/formulas_graficos.png"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/ocr",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "ocr"
+          ]
+        }
+      }
+    },
+    {
+      "name": "OCR - en_blanco.png (no content warning)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "tests/samples/en_blanco.png"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/ocr",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "ocr"
+          ]
+        }
+      }
+    },
+    {
+      "name": "OCR - missing file (400)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "{{baseUrl}}/ocr",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "ocr"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    }
+  ]
+}
