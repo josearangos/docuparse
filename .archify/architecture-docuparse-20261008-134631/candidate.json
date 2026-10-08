@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "DocuParse OCR API",
+    "output": ".archify/architecture-docuparse-20261008-134631/docuparse.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "client", "type": "external", "label": "Client", "sublabel": "PDF / PNG / JPEG", "pos": [40, 300], "size": [120, 60] },
+    { "id": "api", "type": "backend", "label": "FastAPI App", "sublabel": "POST /ocr, GET /health", "pos": [250, 300], "size": [150, 60] },
+    { "id": "service", "type": "backend", "label": "DocumentService", "sublabel": "1 worker, 120 s timeout", "pos": [500, 300], "size": [160, 60] },
+    { "id": "engine", "type": "backend", "label": "PaddleVLEngine", "sublabel": "adapter + mapping", "pos": [760, 300], "size": [150, 60] },
+    { "id": "paddle", "type": "cloud", "label": "PaddleOCR-VL-1.6", "sublabel": "layout + 0.9B VLM", "pos": [1010, 300], "size": [150, 60] },
+    { "id": "validation", "type": "security", "label": "Validation", "sublabel": "type, size, pages", "pos": [510, 150], "size": [140, 60] },
+    { "id": "tmp", "type": "database", "label": "Temp file", "sublabel": "deleted after parse", "pos": [510, 450], "size": [140, 60] }
+  ],
+  "connections": [
+    { "id": "upload", "from": "client", "to": "api", "label": "multipart", "variant": "emphasis" },
+    { "id": "process", "from": "api", "to": "service", "label": "process()" },
+    { "id": "validate", "from": "service", "to": "validation", "label": "validate", "fromSide": "top", "toSide": "bottom", "labelDy": -45 },
+    { "id": "write-tmp", "from": "service", "to": "tmp", "label": "write", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "labelDy": 45 },
+    { "id": "parse", "from": "service", "to": "engine", "label": "parse(path)" },
+    { "id": "predict", "from": "engine", "to": "paddle", "label": "predict" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Request", "items": ["POST /ocr takes one file in the 'file' field", "GET /health reports ready once the model has loaded", "Errors return {error: {code, message}}"] },
+    { "dot": "emerald", "title": "Processing", "items": ["Rejects empty, over 10 MB, over 20 pages or unsupported files before inference", "Inference runs one document at a time", "Result: text, tables, formulas, charts, warnings per page"] },
+    { "dot": "rose", "title": "Performance", "items": ["Model loads once at startup with a warm-up inference", "CPU-only on macOS: about 2 min per image", "A timeout returns 504 and blocks new work until the job ends"] }
+  ]
+}

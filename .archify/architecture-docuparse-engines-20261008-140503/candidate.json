@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "DocuParse OCR API: two engines",
+    "output": ".archify/architecture-docuparse-engines-20261008-140503/docuparse.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client",
+      "sublabel": "PDF / PNG / JPEG",
+      "pos": [
+        40,
+        180
+      ],
+      "size": [
+        120,
+        60
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI App",
+      "sublabel": "POST /ocr, GET /health",
+      "pos": [
+        250,
+        180
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "service",
+      "type": "backend",
+      "label": "DocumentService",
+      "sublabel": "1 worker, 120 s timeout",
+      "pos": [
+        500,
+        180
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "engine",
+      "type": "backend",
+      "label": "DocumentEngine",
+      "sublabel": "set by DOCUPARSE_ENGINE",
+      "pos": [
+        760,
+        180
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "paddle-adapter",
+      "type": "backend",
+      "label": "PaddleVLEngine",
+      "sublabel": "tables, formulas, charts",
+      "pos": [
+        760,
+        30
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "paddle",
+      "type": "cloud",
+      "label": "PaddleOCR-VL-1.6",
+      "sublabel": "layout + 0.9B VLM",
+      "pos": [
+        1030,
+        30
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "rapid-adapter",
+      "type": "backend",
+      "label": "RapidOcrEngine",
+      "sublabel": "text lines only",
+      "pos": [
+        760,
+        330
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "rapid",
+      "type": "cloud",
+      "label": "RapidOCR PP-OCRv6",
+      "sublabel": "ONNX Runtime, es",
+      "pos": [
+        1030,
+        330
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "validation",
+      "type": "security",
+      "label": "Validation",
+      "sublabel": "type, size, pages",
+      "pos": [
+        510,
+        30
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "tmp",
+      "type": "database",
+      "label": "Temp file",
+      "sublabel": "deleted after parse",
+      "pos": [
+        510,
+        330
+      ],
+      "size": [
+        140,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "upload",
+      "from": "client",
+      "to": "api",
+      "label": "multipart",
+      "variant": "emphasis"
+    },
+    {
+      "id": "process",
+      "from": "api",
+      "to": "service",
+      "label": "process()"
+    },
+    {
+      "id": "validate",
+      "from": "service",
+      "to": "validation",
+      "label": "validate",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -45
+    },
+    {
+      "id": "write-tmp",
+      "from": "service",
+      "to": "tmp",
+      "label": "write",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 45
+    },
+    {
+      "id": "parse",
+      "from": "service",
+      "to": "engine",
+      "label": "parse(path)"
+    },
+    {
+      "id": "to-paddle",
+      "from": "engine",
+      "to": "paddle-adapter",
+      "label": "paddle_vl (default)",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -45
+    },
+    {
+      "id": "to-rapid",
+      "from": "engine",
+      "to": "rapid-adapter",
+      "label": "rapidocr",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 45
+    },
+    {
+      "id": "predict",
+      "from": "paddle-adapter",
+      "to": "paddle",
+      "label": "predict"
+    },
+    {
+      "id": "ocr-call",
+      "from": "rapid-adapter",
+      "to": "rapid",
+      "label": "ocr(image)"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Engine switch",
+      "items": [
+        "DOCUPARSE_ENGINE picks one engine at startup: paddle_vl (default) or rapidocr",
+        "Same /ocr contract for both; the engine is not chosen per request",
+        "Install RapidOCR with uv sync --extra fast"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Output",
+      "items": [
+        "paddle_vl: text, tables, formulas, charts, layout",
+        "rapidocr: text lines with confidence and boxes; no tables, formulas or charts",
+        "RapidOCR renders PDF pages with pypdfium2"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Performance",
+      "items": [
+        "rapidocr: about 0.8 s per page on CPU (Apple Silicon)",
+        "paddle_vl: about 2 min per image on macOS CPU; its docs list ARM as unsupported",
+        "A timeout returns 504 and blocks new work until the job ends"
+      ]
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -18,15 +19,25 @@ def _error(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse(status_code=status, content={"error": {"code": code, "message": message}})
 
 
+def _build_engine():
+    """DOCUPARSE_ENGINE=paddle_vl (default, structured) or rapidocr (fast CPU, text only)."""
+    name = os.environ.get("DOCUPARSE_ENGINE", "paddle_vl")
+    if name == "rapidocr":
+        from docuparse.engine.rapid import RapidOcrEngine
+
+        return RapidOcrEngine()
+    from docuparse.engine.paddle_vl import PaddleVLEngine
+
+    return PaddleVLEngine()
+
+
 def create_app(service: DocumentService | None = None) -> FastAPI:
     """Build the app. Pass a service to inject a different engine (used by tests)."""
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         if service is None:
-            from docuparse.engine.paddle_vl import PaddleVLEngine
-
-            engine = PaddleVLEngine()
+            engine = _build_engine()
             engine.load()  # the model loads once at startup
             app.state.service = DocumentService(engine)
         else:

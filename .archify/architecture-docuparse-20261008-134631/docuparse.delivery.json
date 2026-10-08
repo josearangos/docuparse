@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "23f41e62-4614-45bf-a5de-2861ccee6531",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/josearangos/Documents/Study/docuparse/.archify/architecture-docuparse-20261008-134631/candidate.json",
+  "output": "/Users/josearangos/Documents/Study/docuparse/.archify/architecture-docuparse-20261008-134631/docuparse.html",
+  "specification": {
+    "sha256": "75bceeed3be39780e1c73f5a1a36240c7b992486b5cdbb5be5b1c3e3ab233244",
+    "bytes": 2567
+  },
+  "artifact": {
+    "sha256": "768629cec953d8c1e75c4336507f9b3601be7b6cbfd867965b23f6ef1fdce289",
+    "bytes": 755672
+  }
+}
